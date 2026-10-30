@@ -41,9 +41,31 @@ You create **no** tokens. Open the **Terminal** tab and continue.
 Put the same variables in `.devcontainer/.env`, then:
 
 ```bash
-cd .devcontainer && make start
+ #. Replace the values below (keep the quotes), then run the whole block
+DT_ENVIRONMENT="https://<env>.apps.dynatrace.com"
+DT_OPERATOR_TOKEN="<operator token>"
+DT_INGEST_TOKEN="<ingest token>"
+DT_PLATFORM_TOKEN="<dt0s16 platform token>"
+DEEPSEEK_API_KEY=""   # optional, leave empty to use the in-cluster model
+GH_PAT=""             # optional, for the BMAD crew
+
+# 2. Write the .env file
+mkdir -p .devcontainer
+cat > .devcontainer/.env <<EOF
+DT_ENVIRONMENT=$DT_ENVIRONMENT
+DT_OPERATOR_TOKEN=$DT_OPERATOR_TOKEN
+DT_INGEST_TOKEN=$DT_INGEST_TOKEN
+DT_PLATFORM_TOKEN=$DT_PLATFORM_TOKEN
+DEEPSEEK_API_KEY=$DEEPSEEK_API_KEY
+GH_PAT=$GH_PAT
+EOF
+chmod 600 .devcontainer/.env
 ```
 
+once the file create let's launch: 
+```bash
+cd .devcontainer && make start
+```
 !!! info "The agents' LLM"
     The agents are cost-optimized for **DeepSeek** (`deepseek-chat`). When no
     `DEEPSEEK_API_KEY` is present — the default in the Enablement App — the

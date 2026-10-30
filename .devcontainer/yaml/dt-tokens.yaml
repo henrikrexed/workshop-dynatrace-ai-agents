@@ -54,15 +54,28 @@ tokens:
       # environment; without this it 403s and never answers `initialize`.
       - platform-management:environments:read
       - environment-api:entities:read
-      - settings:objects:read
-      - storage:buckets:read
-      - storage:entities:read
-      - storage:events:read
-      - storage:logs:read
-      - storage:metrics:read
-      - storage:spans:read
-      - storage:smartscape:read
+      - ai:operator:execute
+      - mcp-gateway:servers:invoke
+      - mcp-gateway:servers:read
+      - davis-copilot:conversations:execute
+      - davis-copilot:nl2dql:execute
+      - davis-copilot:document-search:execute
+      - davis-copilot:dql2nl:execute
       - davis:analyzers:read
       - davis:analyzers:execute
       - document:documents:read
-      - document:documents:write
+      - storage:bizevents:read
+      - storage:buckets:read
+      - storage:system:read
+      - storage:spans:read
+      - storage:entities:read
+      - storage:user.events:read
+      - storage:user.sessions:read
+      - storage:user.replays:read
+      - storage:smartscape:read
+      - storage:events:read
+      - storage:metrics:read
+      - storage:logs:read
+      - storage:files:read
+      - storage:security.events:read
+
