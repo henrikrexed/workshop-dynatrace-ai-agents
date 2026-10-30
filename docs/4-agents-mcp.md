@@ -121,9 +121,7 @@ Open the **kagent** app (`listApps` prints the URL), pick **sre-agent**, and pas
 type: shell-verification
 question: Let's verirfy that ollama is running
 buttonText: Check
-command: " kubectl run ollama-test --rm -it --restart=Never --image=curlimages/curl -- \
-  curl -s http://ollama.ollama.svc:11434/api/generate \
-  -d '{"model":"qwen2.5:3b","prompt":"Say hello in five words","stream":false}'"
+command: "kubectl run ollama-test --rm -it --restart=Never --image=curlimages/curl -- curl -s http://ollama.ollama.svc:11434/api/generate  -d '{"model":"qwen2.5:3b","prompt":"Say hello in five words","stream":false}'"
 expect:
     operator: exit-zero
 hint: "kubectl run ollama-test --rm -it --restart=Never --image=curlimages/curl -- \
