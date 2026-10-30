@@ -102,6 +102,7 @@ explanation: "sre-agent and the six bmad-* agents are reconciled by the kagent c
 
 ## 5. Send a sample prompt
 
+
 There are two ways to talk to any agent, and they are interchangeable — both land
 on the same A2A endpoint and produce the same traces:
 
@@ -115,6 +116,21 @@ on the same A2A endpoint and produce the same traces:
 Open the **kagent** app (`listApps` prints the URL), pick **sre-agent**, and paste:
 
 > List the pods in the `kagent` namespace and tell me if any are unhealthy.
+
+<!-- LAB_QUESTION
+type: shell-verification
+question: Let's verirfy that ollama is running
+buttonText: Check
+command: " kubectl run ollama-test --rm -it --restart=Never --image=curlimages/curl -- \
+  curl -s http://ollama.ollama.svc:11434/api/generate \
+  -d '{"model":"qwen2.5:3b","prompt":"Say hello in five words","stream":false}'"
+expect:
+    operator: exit-zero
+hint: "kubectl run ollama-test --rm -it --restart=Never --image=curlimages/curl -- \
+  curl -s http://ollama.ollama.svc:11434/api/generate \
+  -d '{"model":"qwen2.5:3b","prompt":"Say hello in five words","stream":false}"
+explanation: "the model should response"
+-->
 
 **A2A**
 
