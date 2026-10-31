@@ -25,7 +25,7 @@ _AIW_VERSIONS="${REPO_PATH}/cluster/versions.env"
 # tool-calling model served in-cluster by Ollama. Good enough to prove the
 # wiring, the traces and the evals; not a substitute for DeepSeek's answers.
 : "${AIW_OLLAMA_IMAGE:=ollama/ollama:0.12.6}"
-: "${AIW_OLLAMA_MODEL:=qwen2.5:3b}"
+: "${AIW_OLLAMA_MODEL:=qwen3:8b}"
 # Inference threads. Ollama sizes its pool from the host's core count, and
 # under Sysbox nproc reports the HOST (16 on a 4xlarge) while the slot may be
 # capped at 4, or — the Orbital default — share every core with its
