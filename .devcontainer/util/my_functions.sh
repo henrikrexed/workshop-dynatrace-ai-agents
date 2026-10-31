@@ -275,38 +275,16 @@ installAgents(){
   for f in "$(aiwModelConfigFile)" "${REPO_PATH}/agents/mcp/10-github-mcp.yaml"; do
     envsubst "$vars" < "$f" | kubectl apply -f -
   done
-  if aiwHasDynatraceMcp; then
-    envsubst "$vars" < "${REPO_PATH}/agents/mcp/20-dynatrace-mcp.yaml" | kubectl apply -f -
     kubectl apply -k "${REPO_PATH}/agents/sre"
     # kagent fails EVERY call of an agent whose tool server is unreachable. If
     # the Dynatrace MCP never comes up (bad token scope, tenant down), keep the
     # SRE agent usable with its Kubernetes tools instead of breaking it.
-    if ! aiwWaitDynatraceMcp; then
-      printWarn "Dynatrace MCP not Accepted — SRE agent falls back to Kubernetes tools only (kubectl -n kagent logs deploy/dynatrace-mcp)"
-      aiwStripDynatraceTools "${REPO_PATH}/agents/sre/sre-agent.yaml" | kubectl apply -f -
-    fi
-  else
-    printWarn "No Dynatrace tenant/platform token — SRE agent deployed with Kubernetes tools only"
-    kubectl -n kagent delete remotemcpserver dynatrace-mcp-remote --ignore-not-found >/dev/null 2>&1
-    kubectl -n kagent delete mcpserver dynatrace-mcp --ignore-not-found >/dev/null 2>&1
-    aiwStripDynatraceTools "${REPO_PATH}/agents/sre/sre-agent.yaml" | kubectl apply -f -
-  fi
+   
   kubectl apply -k "${REPO_PATH}/agents/bmad-crew"
   waitForAgentsAccepted
 }
 
-aiwHasDynatraceMcp(){ [ -n "${DT_ENVIRONMENT:-}" ] && [ -n "${DT_PLATFORM_TOKEN:-}" ]; }
-aiwWaitDynatraceMcp(){
-  local i
-  kubectl -n kagent rollout status deploy/dynatrace-mcp --timeout=180s >/dev/null 2>&1
-  for i in $(seq 1 24); do
-    kubectl -n kagent annotate remotemcpserver dynatrace-mcp-remote aiw/reconcile="$(date +%s)" --overwrite >/dev/null 2>&1
-    sleep 5
-    kubectl -n kagent get remotemcpserver dynatrace-mcp-remote \
-      -o jsonpath='{.status.conditions[?(@.type=="Accepted")].status}' 2>/dev/null | grep -q True && return 0
-  done
-  return 1
-}
+
 aiwStripDynatraceTools(){ sed '/# >>> dynatrace-tools/,/# <<< dynatrace-tools/d' "$1"; }
 
 # Accepted means "the controller parsed it"; Ready means its pod serves A2A.
@@ -615,20 +593,13 @@ runGroundTruthTests(){
 # Section 8 — Optimize
 # ======================================================================
 # Re-apply the SRE agent with its Dynatrace tools pinned to the handful the
-# traces show it actually calls — the "remove unused tools" cut.
-aiwDynatraceMcpAccepted(){
-  kubectl -n kagent get remotemcpserver dynatrace-mcp-remote \
-    -o jsonpath='{.status.conditions[?(@.type=="Accepted")].status}' 2>/dev/null | grep -q True
-}
+# traces show it actually calls — the "remove unused tools" cut
 
 applyLeanSreAgent(){
   # Re-attaching an MCP server that is not Accepted breaks EVERY call of the
   # agent, so only trim when the Dynatrace tools actually work.
-  if aiwHasDynatraceMcp && aiwDynatraceMcpAccepted; then
     kubectl apply -f "${REPO_PATH}/agents/sre/sre-agent-lean.yaml"
-  else
-    printWarn "Dynatrace MCP not available in this session — nothing to trim; the agent keeps only its Kubernetes tools"
-  fi
+
 }
 
 checkLeanSreAgent(){
@@ -637,12 +608,10 @@ checkLeanSreAgent(){
 import json,sys
 d=json.load(sys.stdin)
 tools=d["spec"]["declarative"]["tools"]
-print(sum(len(t.get("mcpServer",{}).get("toolNames") or []) for t in tools if t.get("mcpServer",{}).get("name")=="dynatrace-mcp-remote"))' 2>/dev/null)"
-  if ! aiwHasDynatraceMcp || ! aiwDynatraceMcpAccepted; then
-    printInfo "Dynatrace MCP not available in this session — step not applicable"; return 0
-  fi
+print(sum(len(t.get("mcpServer",{}).get("toolNames") or []) for t in tools if t.get("mcpServer",{}).get("name")=="kagent-tool-server"))' 2>/dev/null)"
+
   [ "${n:-0}" -gt 0 ] \
-    && { printInfo "✅ sre-agent pins ${n} Dynatrace tool(s) instead of all of them"; return 0; } \
+    && { printInfo "✅ sre-agent pins ${n} kagent tool(s) instead of all of them"; return 0; } \
     || { printError "sre-agent still exposes every Dynatrace tool — run: applyLeanSreAgent"; return 1; }
 }
 

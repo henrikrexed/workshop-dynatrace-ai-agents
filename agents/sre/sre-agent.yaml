@@ -81,23 +81,9 @@ spec:
       # purpose: expose every discovered Dynatrace tool (problems/entities/logs/
       # metrics/Davis) — the server itself is read-oriented. Narrow this later if
       # you want to restrict the surface.
-      - type: McpServer
-        mcpServer:
-          apiGroup: kagent.dev
-          kind: RemoteMCPServer
-          name: dynatrace-mcp-remote
-      # <<< dynatrace-tools
+    
     a2aConfig:
       skills:
-        - id: investigate-incident
-          name: Investigate Incident
-          description: Correlate cluster state with Dynatrace problems to find a root cause.
-          inputModes: [text]
-          outputModes: [text]
-          tags: [sre, kubernetes, dynatrace, troubleshooting]
-          examples:
-            - "The checkout pods are crash-looping — what is the root cause?"
-            - "Is there an open Dynatrace problem affecting the frontend service?"
         - id: operate-cluster
           name: Operate Cluster
           description: Perform a minimal, safe remediation (scale, restart, patch) on request.
