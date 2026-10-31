@@ -38,14 +38,12 @@ kmcp: { enabled: true }
 # This sets the chart's *default* ModelConfig; the agents themselves reference the
 # `workshop-llm` ModelConfig in agents/mcp/00-modelconfig.yaml (same DeepSeek config).
 providers:
-  default: openAI
-  openAI:
-      provider: Ollama
+  default: ollama
+  ollama:
+    provider: Ollama
     model: ${AIW_OLLAMA_MODEL}
-    apiKeySecretRef: kagent-deepseek
-    apiKeySecretKey: DEEPSEEK_API_KEY
     config:
-      baseUrl: http://ollama.ollama.svc.cluster.local:11434
+      host: http://ollama.ollama.svc.cluster.local:11434
 
 # --- Observability: export kagent traces to the OTel gateway -----------------
 # So that once Phase 3 adds agents, their LLM/tool spans flow to Dynatrace +
